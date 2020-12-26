@@ -53,12 +53,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.store.dispatch({
       type: '[Product] Toggle Product Code'
     })
-    this.store
-      .select('products')
-      .subscribe( products =>{
-        if(products)
-          this.displayCode = products.showProductCode;
-      })
   }
 
   newProduct(): void {
