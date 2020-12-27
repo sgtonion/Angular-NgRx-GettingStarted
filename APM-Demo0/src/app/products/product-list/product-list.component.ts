@@ -5,7 +5,8 @@ import { Subscription } from 'rxjs';
 
 import { Product } from '../product';
 import { ProductService } from '../product.service';
-import { getShowProductCode, State } from '../state/product.reducer';
+import { getCurrentProduct, getShowProductCode, State } from '../state/product.reducer';
+import * as ProductActions from '../state/product.actions';
 
 @Component({
   selector: 'pm-product-list',
@@ -28,9 +29,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
     private productService: ProductService) { }
 
   ngOnInit(): void {
-    this.sub = this.productService.selectedProductChanges$.subscribe(
-      currentProduct => this.selectedProduct = currentProduct
-    );
+    // this.sub = this.productService.selectedProductChanges$.subscribe(
+    //   currentProduct => this.selectedProduct = currentProduct
+    // );
 
     this.productService.getProducts().subscribe({
       next: (products: Product[]) => this.products = products,
@@ -40,7 +41,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
     //TODO: Unsubscribe
     this.store
       .select(getShowProductCode)
-      .subscribe( showProductCode => this.displayCode = showProductCode)
+      .subscribe( showProductCode => this.displayCode = showProductCode);
+      
+    this.store
+      .select(getCurrentProduct)
+      .subscribe(currentProduct => this.selectedProduct = currentProduct);
   }
 
   ngOnDestroy(): void {
@@ -48,17 +53,17 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   checkChanged(): void {
-    this.store.dispatch({
-      type: '[Product] Toggle Product Code'
-    })
+    this.store.dispatch(ProductActions.toogleProductCode())
   }
 
   newProduct(): void {
-    this.productService.changeSelectedProduct(this.productService.newProduct());
+    this.store.dispatch(ProductActions.initializeCurrentProduct());
   }
 
   productSelected(product: Product): void {
-    this.productService.changeSelectedProduct(product);
+    this.store.dispatch(ProductActions.setCurrentProduct({
+      product: product
+    }))
   }
 
 }
