@@ -58,5 +58,19 @@ export class ProductEffects {
                         )
                 })
             )
-    })
+    });
+
+    createProduct$ = createEffect(() => {
+        return this.action$
+            .pipe(
+                ofType(ProductActions.createProduct),
+                mergeMap(action =>
+                    this.productService
+                        .createProduct(action.product)
+                        .pipe(
+                            map(product => ProductActions.createProductSuccess({product: action.product})),
+                            catchError(err => of(ProductActions.createProductFailure({error: err})))
+                        ))
+            );
+    });
 }
