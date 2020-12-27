@@ -12,12 +12,14 @@ export interface ProductState {
     showProductCode: boolean;
     currentProduct: Product;
     products: Product[];
+    error: string;
 }
 
 const initialState: ProductState = {
     showProductCode: false,
     currentProduct: null,
-    products: []
+    products: [],
+    error: ''
 }
 
 //Serialization of consts matter 
@@ -36,6 +38,10 @@ export const getProducts = createSelector(
     getProductFeatureState,
     state => state.products
 );
+export const getError = createSelector(
+    getProductFeatureState,
+    state => state.error
+)
 
 export const productReducer = createReducer<ProductState>(
     initialState,
@@ -68,6 +74,20 @@ export const productReducer = createReducer<ProductState>(
                 description: '',
                 starRating: 0
             }
+        };
+    }),
+    on(ProductActions.loadProductsSuccess, (state, action): ProductState => {
+        return {
+            ...state,
+            products: action.product,
+            error: ''
+        };
+    }),
+    on(ProductActions.loadProductsFailure, (state, action): ProductState =>{
+        return {
+            ...state,
+            products: [],
+            error : action.error
         };
     })
 );
