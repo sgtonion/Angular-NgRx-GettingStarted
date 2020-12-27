@@ -3,6 +3,7 @@ import { createAction, createFeatureSelector, createReducer, createSelector, on 
 import { Product } from "../product";
 import * as AppState from "../../state/app.state"
 import * as ProductActions from "./product.actions"
+import { ProductService } from "../product.service";
 
 export interface State extends AppState.State {
     products: ProductState
@@ -23,9 +24,10 @@ const initialState: ProductState = {
 }
 
 //Serialization of consts matter 
-// Ln25 => Selects the "product" feature from Store
+// Ln28 => Selects the "product" feature from Store
 // Ln26 => Selects the specified state from the product feature
 const getProductFeatureState = createFeatureSelector<ProductState>('products');
+
 export const getShowProductCode = createSelector(
     getProductFeatureState,
     state => state.showProductCode
@@ -49,7 +51,7 @@ export const getCurrentProduct = createSelector(
             currentProductId ?
                 state.products.find(p => p.id === currentProductId) :
                 null
-)
+);
 export const getProducts = createSelector(
     getProductFeatureState,
     state => state.products
@@ -109,6 +111,22 @@ export const productReducer = createReducer<ProductState>(
         }
     }),
     on(ProductActions.updateProductFailure, (state, action): ProductState => {
+        return {
+            ...state,
+            error: action.error
+        }
+    }),
+
+    on(ProductActions.deleteProductSuccess, (state, action) : ProductState =>{
+        return {
+            ...state,
+            currentProductId: null,
+            products : state.products.filter(p => p.id != action.productId),
+            error: ''
+        }
+    }),
+
+    on(ProductActions.deleteProductFailure, (state, action): ProductState => {
         return {
             ...state,
             error: action.error
